@@ -1,32 +1,34 @@
-import { createContext, useState, useEffect, use } from "react";
+import { createContext, useState, useEffect } from "react";
 
 export const NotesContext = createContext();
 
-export const NotesProvider = ({children}) =>{
-    const [notes, setNotes] = useState();
-    const [selectedNote, setselectedNote]=useState(null);
+export const NotesProvider = ({ children }) => {
+  const [notes, setNotes] = useState([]);
+  const [selectedNote, setSelectedNote] = useState(null);
 
-    useEffect(()=>{
-        const savedNotes = JSON.parse(localStorage.getItem("notes")) || [];
-        setNotes(savedNotes);
-    },[]);
+  useEffect(() => {
+  const saved = localStorage.getItem("notes");
+  const savedNotes = saved ? JSON.parse(saved) : [];
+  setNotes(savedNotes);
+}, []);
+useEffect(() => {
+    localStorage.setItem("notes", JSON.stringify(notes));
+  }, [notes]);
 
-    useEffect(()=>{
-        (localStorage.setItem("notes", JSON.stringify(notes))) || [];
-        setNotes(notes);
-    },[notes]);
+  const addNote = (text) => {
+    const newNote = {
+      id: Date.now(),
+      text: text
+    };
 
-    const addNote = (text)=>{
-        const newNote = {
-            id: Date.now(),
-            text
-        };
-        setNotes([...notes, newNote]);
+    setNotes([...notes, newNote]);
+  };
 
-        return(
-            <NotesContext.Provider
-            value={{notes,addNote,selectedNote,setselectedNote}}>
-                {children}</NotesContext.Provider>
-        )
-    }
-}
+  return (
+    <NotesContext.Provider
+      value={{ notes, addNote, selectedNote, setSelectedNote }}
+    >
+      {children}
+    </NotesContext.Provider>
+  );
+};
